@@ -1,0 +1,1 @@
+This control file must never be deleted by Demo A.

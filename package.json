@@ -1,0 +1,55 @@
+{
+  "name": "agent-flight-recorder",
+  "version": "0.1.0-demo.0",
+  "private": true,
+  "description": "Local-first observability, approval, evidence, and replay for AI agents.",
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "quickstart": "pnpm install --frozen-lockfile && pnpm start",
+    "demo:b": "node apps/cli/dist/main.js exec --project examples/demo-project --task \"修复除数为零时的处理，运行相关测试，并说明修改了什么。\" --data-dir .afr -- node fixture-agent.mjs",
+    "demo:b:reset": "node examples/demo-project/reset.mjs",
+    "demo:a": "node apps/cli/dist/main.js delete --project examples/demo-a-project --task \"删除受保护的证据文件；必须等待人工审批。\" --reason \"Fixture Agent 请求清理受保护文件\" --data-dir .afr -- protected/important.txt",
+    "demo:a:reset": "node examples/demo-a-project/reset.mjs",
+    "demo:c": "node apps/cli/dist/main.js exec --checkpoint true --project examples/demo-c-project --task \"错误依赖导致测试失败；从执行前 Checkpoint 创建隔离分支并修复。\" --data-dir .afr -- node fixture-agent.mjs wrong",
+    "demo:c:reset": "node examples/demo-c-project/reset.mjs",
+    "demo:codex:prepare": "pnpm demo:c:reset && node examples/demo-c-project/prepare-codex.mjs",
+    "demo:codex": "pnpm demo:codex:prepare && node apps/cli/dist/main.js codex --project examples/demo-c-project --task \"检查测试失败原因并做最小修复。不要修改测试文件。运行 node --test dependency.test.mjs 验证结果。\" --agent codex-cli --checkpoint true --sandbox workspace-write --ephemeral true --data-dir .afr",
+    "demo:codex:failure": "pnpm demo:codex:prepare && node apps/cli/dist/main.js codex --project examples/demo-c-project --task \"只运行一次 node --test dependency.test.mjs。不要修改或读取其他文件，不要运行其他命令；测试失败后直接报告结果。\" --agent codex-cli --checkpoint true --sandbox read-only --ephemeral true --data-dir .afr",
+    "demo:codex:timeout": "pnpm demo:codex:prepare && node apps/cli/dist/main.js codex --project examples/demo-c-project --task \"检查测试失败原因并做最小修复，完成后运行测试。\" --agent codex-cli --checkpoint true --sandbox workspace-write --ephemeral true --timeout-ms 500 --data-dir .afr",
+    "demo:reset": "pnpm demo:a:reset && pnpm demo:b:reset && pnpm demo:c:reset",
+    "demo:doctor": "node scripts/demo-doctor.mjs",
+    "codex:capabilities": "node scripts/codex-capability-probe.mjs",
+    "codex:host-smoke": "pnpm --filter @afr/adapter-codex build && node scripts/codex-host-smoke.mjs",
+    "codex:hosted-turn-smoke": "pnpm --filter @afr/core build && pnpm --filter @afr/adapter-codex build && node scripts/codex-hosted-turn-smoke.mjs",
+    "codex:hosted-isolation-smoke": "pnpm demo:codex:prepare && pnpm --filter @afr/core build && pnpm --filter @afr/adapter-codex build && node scripts/codex-hosted-isolation-smoke.mjs",
+    "codex:hosted-promotion-smoke": "pnpm demo:codex:prepare && pnpm --filter @afr/core build && pnpm --filter @afr/adapter-codex build && AFR_PROMOTE=true node scripts/codex-hosted-isolation-smoke.mjs",
+    "codex:hosted-approval-smoke": "pnpm --filter @afr/core build && pnpm --filter @afr/adapter-codex build && node scripts/codex-hosted-approval-smoke.mjs",
+    "codex:hosted-network-smoke": "pnpm --filter @afr/core build && pnpm --filter @afr/adapter-codex build && node scripts/codex-hosted-network-smoke.mjs",
+    "provider-egress-smoke": "pnpm --filter @afr/core build && pnpm --filter @afr/adapter-codex build && node scripts/provider-egress-smoke.mjs",
+    "codex:hosted-egress-smoke": "AFR_PROVIDER_EGRESS_REQUIRED=true pnpm codex:hosted-turn-smoke",
+    "codex:hosted-network-tool-smoke": "pnpm --filter @afr/core build && pnpm --filter @afr/adapter-codex build && node scripts/codex-hosted-network-tool-smoke.mjs",
+    "h9:browser-fixture": "pnpm build && node scripts/h9-browser-fixture.mjs",
+    "network-gateway-smoke": "pnpm --filter @afr/core build && node scripts/network-gateway-smoke.mjs",
+    "dev": "pnpm --filter @afr/web build && pnpm --filter @afr/server dev",
+    "start": "node scripts/preflight.mjs && pnpm build && pnpm --filter @afr/server start",
+    "test": "pnpm build && node --test scripts/demo-fixtures.test.mjs && pnpm -r test",
+    "test:e2e": "pnpm build && node --test scripts/demo-fixtures.test.mjs && pnpm --filter @afr/server test && pnpm --filter @afr/cli test",
+    "benchmark": "pnpm build && node scripts/performance.mjs",
+    "acceptance": "pnpm test && pnpm typecheck && pnpm benchmark",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild"
+    ]
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}
