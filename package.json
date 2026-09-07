@@ -2,6 +2,7 @@
   "name": "agent-flight-recorder",
   "version": "0.1.0-demo.0",
   "private": true,
+  "license": "MIT",
   "description": "Local-first observability, approval, evidence, and replay for AI agents.",
   "packageManager": "pnpm@10.34.5",
   "engines": {

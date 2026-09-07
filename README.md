@@ -297,3 +297,7 @@ M3 的 worktree 是文件写入与网络副作用边界，不是通用容器。�
 - [C2/H7 Patch Promotion 验收记录](./docs/acceptance/C2-h7-patch-promotion.md)
 - [C1 真实 Codex CLI 验收记录](./docs/acceptance/C1-codex-cli.md)
 - [ADR 0002：Codex 真实接入路径](./docs/decisions/0002-codex-integration-path.md)
+
+## 许可证
+
+本项目采用 [MIT License](./LICENSE)。
